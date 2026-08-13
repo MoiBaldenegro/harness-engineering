@@ -38,12 +38,23 @@ run_check "dependencias instaladas (node_modules)" test -d node_modules
 echo ""
 echo "--- Archivos del harness ---"
 run_check "AGENTS.md existe" test -f AGENTS.md
-run_check "feature_list.json existe" test -f feature_list.json
+
+if [ ! -f feature_list.json ]; then
+  fail "feature_list.json ausente: crea un nuevo feature_list.json desde cero (esqueleto { project, description, rules, features } según el validador) y da de alta las features vía spec_author"
+  FAILURES=$((FAILURES + 1))
+else
+  ok "feature_list.json existe"
+fi
+
 run_check "progress/current.md existe" test -f progress/current.md
 
 echo ""
 echo "--- Formato ---"
-run_check "formato de feature_list.json y progress/current.md" node scripts/check-format.mjs
+if [ ! -f feature_list.json ]; then
+  run_check "formato con guard (feature_list.json ausente)" node scripts/check-format.mjs
+else
+  run_check "formato de feature_list.json y progress/current.md" node scripts/check-format.mjs
+fi
 
 echo ""
 echo "--- Tests ---"
